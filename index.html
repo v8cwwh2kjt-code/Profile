@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIで副業実験中</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #2a2a3a;
+    --accent: #00f5a0;
+    --accent2: #00d4ff;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    overflow-x: hidden;
+  }
+
+  /* background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  /* glow blob */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(ellipse, rgba(0,245,160,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* header */
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1rem;
+    box-shadow: 0 0 30px rgba(0,245,160,0.3);
+  }
+
+  .name {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .bio {
+    color: var(--muted);
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    background: rgba(0,245,160,0.1);
+    border: 1px solid rgba(0,245,160,0.3);
+    color: var(--accent);
+    font-size: 0.7rem;
+    padding: 0.2em 0.7em;
+    border-radius: 100px;
+    margin-top: 0.6rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* links */
+  .links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .link-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .link-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,245,160,0.04), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .link-item:hover {
+    border-color: rgba(0,245,160,0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,245,160,0.1);
+  }
+
+  .link-item:hover::before { opacity: 1; }
+
+  .link-item:nth-child(1) { animation-delay: 0.1s; }
+  .link-item:nth-child(2) { animation-delay: 0.2s; }
+  .link-item:nth-child(3) { animation-delay: 0.3s; }
+  .link-item:nth-child(4) { animation-delay: 0.4s; }
+  .link-item:nth-child(5) { animation-delay: 0.5s; }
+
+  .link-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(0,245,160,0.08);
+    border: 1px solid rgba(0,245,160,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+
+  .link-text { flex: 1; }
+
+  .link-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.01em;
+  }
+
+  .link-desc {
+    color: var(--muted);
+    font-size: 0.75rem;
+    margin-top: 0.2rem;
+  }
+
+  .link-arrow {
+    color: var(--muted);
+    font-size: 0.9rem;
+    transition: transform 0.2s, color 0.2s;
+  }
+
+  .link-item:hover .link-arrow {
+    transform: translateX(3px);
+    color: var(--accent);
+  }
+
+  /* badge */
+  .badge {
+    display: inline-block;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    color: #0a0a0f;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.15em 0.5em;
+    border-radius: 4px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    letter-spacing: 0.05em;
+  }
+
+  /* stats bar */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    animation: fadeUp 0.5s 0.6s ease both;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 0.2rem;
+  }
+
+  /* footer */
+  .footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    animation: fadeUp 0.5s 0.7s ease both;
+  }
+
+  /* animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="avatar">🤖</div>
+    <div class="name">AIで副業実験中</div>
+    <div class="bio">Claudeだけでアフィリエイト月1万円を目指す実録<br>収益・失敗・発見をすべて公開します</div>
+    <span class="tag">▶ 実験進行中</span>
+  </div>
+
+  <div class="links">
+
+    <a href="https://twitter.com/" class="link-item" target="_blank">
+      <div class="link-icon">𝕏</div>
+      <div class="link-text">
+        <div class="link-title">Xアカウント（毎日更新）</div>
+        <div class="link-desc">AI副業の実録・Claude活用術を発信中</div>
+      </div>
+      <div class="link-arrow">→</div>
+    </a>
+
+    <a href="https://www.a8.net/" class="link-item" target="_blank">
+      <div class="link-icon">💰</div>
+      <div class="link-text">
+        <div class="link-title">A8.net <span class="badge">無料登録</span></div>
+        <div class="link-desc">私が使っているアフィリエイトASP・審査なしで始められる</div>
+      </div>
+      <div class="link-arrow">→</div>
+    </a>
+
+    <a href="https://claude.ai/" class="link-item" target="_blank">
+      <div class="link-icon">✦</div>
+      <div class="link-text">
+        <div class="link-title">Claude（無料で使える）</div>
+        <div class="link-desc">このアカウントの運営に使っているAI</div>
+      </div>
+      <div class="link-arrow">→</div>
+    </a>
+
+    <a href="#" class="link-item" target="_blank">
+      <div class="link-icon">📊</div>
+      <div class="link-text">
+        <div class="link-title">収益レポート（毎週更新）</div>
+        <div class="link-desc">ゼロから始めた収益を全部公開</div>
+      </div>
+      <div class="link-arrow">→</div>
+    </a>
+
+    <a href="#" class="link-item" target="_blank">
+      <div class="link-icon">📋</div>
+      <div class="link-text">
+        <div class="link-title">使えるプロンプト集</div>
+        <div class="link-desc">副業に役立つClaudeプロンプトまとめ</div>
+      </div>
+      <div class="link-arrow">→</div>
+    </a>
+
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-num">0円</div>
+      <div class="stat-label">累計収益</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1週目</div>
+      <div class="stat-label">活動期間</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">10</div>
+      <div class="stat-label">投稿数</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Powered by Claude ✦ 収益・数字は毎週更新
+  </div>
+
+</div>
+</body>
+</html>
